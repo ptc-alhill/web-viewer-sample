@@ -1,5 +1,9 @@
 pages:
   image: node:18
+  tags:
+    - shared
+    - docker
+    - linux
   script:
     - npm install
     - npm run build
