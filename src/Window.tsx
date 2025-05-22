@@ -68,12 +68,12 @@ export default class App extends React.Component<AppProps, AppState> {
         // list of selectable USD assets
         const usdAssets: USDAssetType[] = StreamConfig.source === "stream"? [
             {name: "Sample 1", url:"/app/samples/stage01.usd"},
-            {name: "Sample 2", url:"https://i-8ffa3eeb.s3.us-east-1.amazonaws.com/part_example.usdz"},
+            {name: "Sample 2", url:"/app/samples/stage02.usd"},
         ]
         :
         [
-            {name: "Sample 1", url:"./samples/stage01.usd"},
-            {name: "Sample 2", url:"./samples/stage02.usd"},
+            {name: "Drill", url:"VR:wt.part.WTPart:7123532"},
+            {name: "Bike", url:"OR:wt.part.WTPart:7108892"},
         ];
 
         this.state = {
@@ -137,7 +137,8 @@ export default class App extends React.Component<AppProps, AppState> {
      */
     private _getAsset(path: string): USDAssetType {
         if (!path)
-            return {name: "", url: ""}
+            return this.state.usdAssets[0]
+            //return {name: "", url: ""}
         
         // returns the file name from a path
         const getFileNameFromPath = (path: string): string | undefined => path.split(/[/\\]/).pop();
@@ -147,7 +148,8 @@ export default class App extends React.Component<AppProps, AppState> {
                 return asset
         }
         
-        return {name: "", url: ""}
+        //return {name: "", url: ""}
+        return this.state.usdAssets[0]
     }
 
     /**
@@ -342,8 +344,10 @@ export default class App extends React.Component<AppProps, AppState> {
             }
             
             else {
+                const base_stage_url = "./models/stage_v3/stage.usd"
                 const usdAsset: USDAssetType = this._getAsset(event.payload.url)
-                const isStageValid: boolean = !!(usdAsset.name && usdAsset.url)
+                const isStageValid: boolean = ((usdAsset.name && usdAsset.url) || event.payload.url === base_stage_url)
+                //const isStageValid: boolean = !!(usdAsset.name && usdAsset.url)
                 
                 // set the USD Asset dropdown to the currently opened stage if it doesn't match
                 if (isStageValid && usdAsset !== undefined && this.state.selectedUSDAsset !== usdAsset)
