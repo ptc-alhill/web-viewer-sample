@@ -9,7 +9,7 @@
  * without an express license agreement from NVIDIA CORPORATION or
  * its affiliates is strictly prohibited.
  */
-.usdAssetContainer {
+.lightingOptionsContainer {
     position: relative;
     right: 0;
     width: 100%; /* This will be controlled by React prop */
@@ -19,19 +19,19 @@
     text-align: left;
 }
 
-.usdAssetHeader {
+.lightingOptionsHeader {
     margin-left: 30px;
     margin-top: 15px;
     font-size: 25px;
 }
 
-.usdAssetSelectorContainer {
+.lightingOptionsSelectorContainer {
     margin-left: 30px;
     margin-right: 30px;
     margin-top: 10px;
 }
 
-.usdAssetSelector {
+.lightingOptionsSelector {
     width: 100%;
     background-color: #76b900; /* NVIDIA green */
     color: #ffffff; /* White text */
@@ -40,7 +40,7 @@
     height: 30px;
 }
 
-.usdAssetOption {
+.lightingOptionsOption {
     background-color: #FEFEFE; /* Light background for options */
     color: #000000; /* Dark text for options */
 }

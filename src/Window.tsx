@@ -14,6 +14,8 @@ import './App.css';
 import AppStream from './AppStream'; // Ensure .tsx extension if needed
 import StreamConfig from '../stream.config.json';
 import USDAsset from "./USDAsset";
+import LightingOptions from "./LightingOptions";
+import Backdrop from "./Backdrop";
 import USDStage from "./USDStage";
 import { headerHeight } from './App';
 
@@ -42,7 +44,10 @@ export interface AppProps {
 
 interface AppState {
     usdAssets: USDAssetType[];
+    lightingOptions: string[];
     selectedUSDAsset: USDAssetType;
+    selectedLighting: string;
+    backdropEnabled: boolean;
     usdPrims: USDPrimType[];
     selectedUSDPrims: Set<USDPrimType>;
     isKitReady: boolean;
@@ -76,9 +81,24 @@ export default class App extends React.Component<AppProps, AppState> {
             {name: "Bike", url:"OR:wt.part.WTPart:7108892"},
         ];
 
+        // list of selectable lighting
+        const lightingOptions: string[] = 
+        [
+            "basic",
+            "factory",
+            "showroom",
+            "deathstar",
+            "industrial",
+        ];
+
+        // {name: "Sample 2", url:"http:///i-8ffa3eeb.s3.us-east-1.amazonaws.com/part_example.usdz"},
+
         this.state = {
             usdAssets: usdAssets,
+            lightingOptions: lightingOptions,
             selectedUSDAsset: usdAssets[0],
+            selectedLighting: "basic",
+            backdropEnabled: true,
             usdPrims: [],
             selectedUSDPrims: new Set<USDPrimType>(),
             isKitReady: false,
@@ -184,6 +204,38 @@ export default class App extends React.Component<AppProps, AppState> {
     }
 
     /**
+    * @function _setSelectedLighting
+    *
+    * Send a request to select the current lighting
+    */
+    private _setSelectedLighting(): void {
+        console.log(`Sending request to change lighting: ${this.state.selectedLighting}.`);
+        const message: AppStreamMessageType = {
+            event_type: "selectLightingRequest",
+            payload: {
+                lighting: this.state.selectedLighting  
+            }
+        };
+        AppStream.sendMessage(JSON.stringify(message));
+    }
+
+    /**
+    * @function _setBackdropEnabled
+    *
+    * Send a request to select the current lighting
+    */
+    private _setBackdropEnabled(): void {
+        console.log(`Sending request to change backdrop state: ${this.state.backdropEnabled}.`);
+        const message: AppStreamMessageType = {
+            event_type: "setBackdropEnabled",
+            payload: {
+                backdrop: this.state.backdropEnabled  
+            }
+        };
+        AppStream.sendMessage(JSON.stringify(message));
+    }
+
+    /**
     * @function _onSelectUSDAsset
     *
     * React to user selecting an asset in the USDAsset selector.
@@ -192,6 +244,30 @@ export default class App extends React.Component<AppProps, AppState> {
         console.log(`Asset selected: ${usdAsset.name}.`);
         this.setState({ selectedUSDAsset: usdAsset }, () => {
             this._openSelectedAsset();
+        });
+    }
+
+    /**
+    * @function _onSelectLighting
+    *
+    * React to user selecting lighting in the Lighting selector.
+    */
+    private _onSelectLighting (selection: string): void {
+        console.log(`Lighting selected: ${selection}.`);
+        this.setState({ selectedLighting: selection }, () => {
+            this._setSelectedLighting();
+        });
+    }
+
+    /**
+    * @function _onBackdropToggle
+    *
+    * React to user selecting lighting in the Lighting selector.
+    */
+    private _onBackdropToggle (value: boolean): void {
+        console.log(`Backdrop toggled: ${value}.`);
+        this.setState({ backdropEnabled: value }, () => {
+            this._setBackdropEnabled();
         });
     }
     
@@ -448,74 +524,80 @@ export default class App extends React.Component<AppProps, AppState> {
     render() {
 
         const sidebarWidth = 300;
-        return (
-            <div
-                style={{
-                    position: 'absolute',
-                    top: headerHeight,
-                    width: '100%',
-                    height: '100%'
-                }}
-            >
-                <div style={{
-                            position: 'absolute',
-                            height: `calc(100% - ${headerHeight}px)`,
-                            width: `calc(100% - ${sidebarWidth}px)`
-                }}>
-                    
-                {/* Loading text indicator */}
-                {!this.state.showStream && 
-                    <div className="loading-indicator-label">
-                        {this.state.loadingText}
-                        <div className="spinner-border" role="status" style={{ marginTop: 10, visibility: this.state.isLoading? 'visible': 'hidden' }} />
-                    </div>
-                }
-
-                {/* Streamed app */}
-                <AppStream
-                    sessionId={this.props.sessionId}
-                    backendUrl={this.props.backendUrl}
-                    signalingserver={this.props.signalingserver}
-                    signalingport={this.props.signalingport}
-                    mediaserver={this.props.mediaserver}
-                    mediaport={this.props.mediaport}
-                    accessToken={this.props.accessToken}
-                    onStarted={() => this._onStreamStarted()}
-                    onFocus={() => this._handleAppStreamFocus()}
-                    onBlur={() => this._handleAppStreamBlur()}
-                    style={{
-                        position: 'relative',
-                        visibility: this.state.showStream? 'visible' : 'hidden'
-                    }}
-                    onLoggedIn={(userId) => this._onLoggedIn(userId)}
-                    handleCustomEvent={(event) => this._handleCustomEvent(event)}
-                    onStreamFailed={this.props.onStreamFailed}
-                    />
+return (
+    <div
+        style={{
+            position: 'relative',
+            top: headerHeight,
+            left: 0,
+            width: '100%',
+            height: `calc(100% - ${headerHeight}px)`,
+            display: 'flex',
+            flexDirection: 'row',
+        }}
+    >
+        {/* Stream Area */}
+        <div style={{ flex: 1, position: 'relative' }}>
+            {!this.state.showStream && 
+                <div className="loading-indicator-label">
+                    {this.state.loadingText}
+                    <div className="spinner-border" role="status" style={{ marginTop: 10, visibility: this.state.isLoading ? 'visible' : 'hidden' }} />
                 </div>
+            }
 
-                {this.state.showUI &&
-                <>
-                        
-                    {/* USD Asset Selector */}
-                    <USDAsset
-                        usdAssets={this.state.usdAssets}
-                        selectedAssetUrl={this.state.selectedUSDAsset?.url}
-                        onSelectUSDAsset={(value) => this._onSelectUSDAsset(value)}
-                        width={sidebarWidth}
-                    />
-                    {/* USD Stage Listing */}
-                    <USDStage
-                        ref={this.usdStageRef}
-                        width={sidebarWidth}
-                        usdPrims={this.state.usdPrims}
-                        onSelectUSDPrims={(value) => this._onSelectUSDPrims(value)}
-                        selectedUSDPrims={this.state.selectedUSDPrims}
-                        fillUSDPrim={(value) => this._onFillUSDPrim(value)}
-                        onReset={() => this._onStageReset()}
-                        />
-                    </>
-                }
+            <AppStream
+                sessionId={this.props.sessionId}
+                backendUrl={this.props.backendUrl}
+                signalingserver={this.props.signalingserver}
+                signalingport={this.props.signalingport}
+                mediaserver={this.props.mediaserver}
+                mediaport={this.props.mediaport}
+                accessToken={this.props.accessToken}
+                onStarted={() => this._onStreamStarted()}
+                onFocus={() => this._handleAppStreamFocus()}
+                onBlur={() => this._handleAppStreamBlur()}
+                style={{
+                    position: 'relative',
+                    visibility: this.state.showStream ? 'visible' : 'hidden'
+                }}
+                onLoggedIn={(userId) => this._onLoggedIn(userId)}
+                handleCustomEvent={(event) => this._handleCustomEvent(event)}
+                onStreamFailed={this.props.onStreamFailed}
+            />
+        </div>
+
+        {/* Sidebar */}
+        {this.state.showUI && (
+            <div style={{ width: sidebarWidth, position: 'relative' }}>
+                <USDAsset
+                    usdAssets={this.state.usdAssets}
+                    selectedAssetUrl={this.state.selectedUSDAsset?.url}
+                    onSelectUSDAsset={(value) => this._onSelectUSDAsset(value)}
+                    width={sidebarWidth}
+                />
+                <LightingOptions
+                    lightingOptions={this.state.lightingOptions}
+                    selectedLighting={this.state.selectedLighting}
+                    onSelectLighting={(value) => this._onSelectLighting(value)}
+                    width={sidebarWidth}
+                />
+                <Backdrop
+                    isEnabled={this.state.backdropEnabled}
+                    onToggle={(value) => this._onBackdropToggle(value)}
+                    width={sidebarWidth}
+                />
+                <USDStage
+                    ref={this.usdStageRef}
+                    width={sidebarWidth}
+                    usdPrims={this.state.usdPrims}
+                    onSelectUSDPrims={(value) => this._onSelectUSDPrims(value)}
+                    selectedUSDPrims={this.state.selectedUSDPrims}
+                    fillUSDPrim={(value) => this._onFillUSDPrim(value)}
+                    onReset={() => this._onStageReset()}
+                />
             </div>
-            );
+        )}
+    </div>
+);
         }
     }

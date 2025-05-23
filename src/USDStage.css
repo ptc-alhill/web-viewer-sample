@@ -10,8 +10,8 @@
  * its affiliates is strictly prohibited.
  */
 .usdStageContainer {
-    position: absolute;
-    top: 105px;
+    position: relative;
+    top: 20;
     right: 0;
     height: calc(100% - 185px);
     background-color: #FEFEFE;
