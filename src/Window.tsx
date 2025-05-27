@@ -74,10 +74,12 @@ export default class App extends React.Component<AppProps, AppState> {
         const usdAssets: USDAssetType[] = StreamConfig.source === "stream"? [
             {name: "Sample 1", url:"/app/samples/stage01.usd"},
             {name: "Sample 2", url:"/app/samples/stage02.usd"},
+            {name: "Sample 2", url:"/app/samples/stage03.usd"},
         ]
         :
         [
             {name: "Drill", url:"VR:wt.part.WTPart:7123532"},
+            {name: "PCB", url:"VR:wt.part.WTPart:7313998"},
             {name: "Bike", url:"OR:wt.part.WTPart:7108892"},
         ];
 
@@ -422,8 +424,7 @@ export default class App extends React.Component<AppProps, AppState> {
             else {
                 const base_stage_url = "./models/stage_v3/stage.usd"
                 const usdAsset: USDAssetType = this._getAsset(event.payload.url)
-                const isStageValid: boolean = ((usdAsset.name && usdAsset.url) || event.payload.url === base_stage_url)
-                //const isStageValid: boolean = !!(usdAsset.name && usdAsset.url)
+                const isStageValid: boolean = !!(usdAsset.name && usdAsset.url)
                 
                 // set the USD Asset dropdown to the currently opened stage if it doesn't match
                 if (isStageValid && usdAsset !== undefined && this.state.selectedUSDAsset !== usdAsset)
