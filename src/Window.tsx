@@ -15,6 +15,7 @@ import AppStream from './AppStream'; // Ensure .tsx extension if needed
 import StreamConfig from '../stream.config.json';
 import USDAsset from "./USDAsset";
 import LightingOptions from "./LightingOptions";
+import PCBLayers from "./PCBLayers";
 import Backdrop from "./Backdrop";
 import USDStage from "./USDStage";
 import { headerHeight } from './App';
@@ -48,6 +49,8 @@ interface AppState {
     selectedUSDAsset: USDAssetType;
     selectedLighting: string;
     backdropEnabled: boolean;
+    pcbLayerNames: string[];
+    pcbLayerEnabledStates: boolean[]; 
     usdPrims: USDPrimType[];
     selectedUSDPrims: Set<USDPrimType>;
     isKitReady: boolean;
@@ -101,6 +104,8 @@ export default class App extends React.Component<AppProps, AppState> {
             selectedUSDAsset: usdAssets[0],
             selectedLighting: "basic",
             backdropEnabled: true,
+            pcbLayerNames: ["Top Copper", "Bottom Copper", "Silkscreen", "Soldermask"],
+            pcbLayerEnabledStates: [true, false, true, false],
             usdPrims: [],
             selectedUSDPrims: new Set<USDPrimType>(),
             isKitReady: false,
@@ -238,6 +243,23 @@ export default class App extends React.Component<AppProps, AppState> {
     }
 
     /**
+    * @function _setPCBLayerEnabled
+    *
+    * Send a request to select the current lighting
+    */
+    private _setPCBLayerEnabled(index: number): void {
+        console.log(`Sending request to change pcb layer state: ${this.state.pcbLayerEnabledStates[index]}.`);
+        const message: AppStreamMessageType = {
+            event_type: "setPCBLayerEnabled",
+            payload: {
+                index: index,
+                layer: this.state.pcbLayerEnabledStates[index]
+            }
+        };
+        AppStream.sendMessage(JSON.stringify(message));
+    }
+
+    /**
     * @function _onSelectUSDAsset
     *
     * React to user selecting an asset in the USDAsset selector.
@@ -272,6 +294,19 @@ export default class App extends React.Component<AppProps, AppState> {
             this._setBackdropEnabled();
         });
     }
+
+    /**
+    * @function _onTogglePCBLayers
+    *
+    * React to user selecting layer in the PCB Layers selector.
+    */
+    private _onTogglePCBLayers = (index: number, value: boolean): void => {
+        const updatedStates = [...this.state.pcbLayerEnabledStates];
+        updatedStates[index] = value;
+        this.setState({ pcbLayerEnabledStates: updatedStates }, () => {
+            this._setPCBLayerEnabled(index);
+        });
+    };
     
     /**
     * @function _getChildren
@@ -585,6 +620,12 @@ return (
                     isEnabled={this.state.backdropEnabled}
                     onToggle={(value) => this._onBackdropToggle(value)}
                     width={sidebarWidth}
+                />
+                <PCBLayers
+                    width={sidebarWidth}
+                    layerNames={this.state.pcbLayerNames}
+                    enabledStates={this.state.pcbLayerEnabledStates}
+                    onToggle={this._onTogglePCBLayers}
                 />
                 <USDStage
                     ref={this.usdStageRef}

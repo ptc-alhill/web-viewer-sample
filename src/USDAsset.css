@@ -13,7 +13,7 @@
     position: relative;
     right: 0;
     width: 100%; /* This will be controlled by React prop */
-    height: 155px;
+    height: 85px;
     background-color: #FEFEFE;
     color: #656565;
     text-align: left;
