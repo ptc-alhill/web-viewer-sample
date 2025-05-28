@@ -104,8 +104,8 @@ export default class App extends React.Component<AppProps, AppState> {
             selectedUSDAsset: usdAssets[0],
             selectedLighting: "basic",
             backdropEnabled: true,
-            pcbLayerNames: ["Top Copper", "Bottom Copper", "Silkscreen", "Soldermask"],
-            pcbLayerEnabledStates: [true, false, true, false],
+            pcbLayerNames: ["PinPads", "Routes", "Paste", "SolderMask"],
+            pcbLayerEnabledStates: [true, true, true, true],
             usdPrims: [],
             selectedUSDPrims: new Set<USDPrimType>(),
             isKitReady: false,
@@ -250,10 +250,10 @@ export default class App extends React.Component<AppProps, AppState> {
     private _setPCBLayerEnabled(index: number): void {
         console.log(`Sending request to change pcb layer state: ${this.state.pcbLayerEnabledStates[index]}.`);
         const message: AppStreamMessageType = {
-            event_type: "setPCBLayerEnabled",
+            event_type: "setPCBLayerRequest",
             payload: {
-                index: index,
-                layer: this.state.pcbLayerEnabledStates[index]
+                layer: 'layer' + this.state.pcbLayerNames[index],
+                selection: this.state.pcbLayerEnabledStates[index]
             }
         };
         AppStream.sendMessage(JSON.stringify(message));
