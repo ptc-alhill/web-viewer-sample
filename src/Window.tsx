@@ -17,6 +17,7 @@ import USDAsset from "./USDAsset";
 import LightingOptions from "./LightingOptions";
 import PCBLayers from "./PCBLayers";
 import Backdrop from "./Backdrop";
+import Hidden from "./Hidden";
 import USDStage from "./USDStage";
 import { headerHeight } from './App';
 
@@ -51,6 +52,7 @@ interface AppState {
     backdropEnabled: boolean;
     pcbLayerNames: string[];
     pcbLayerEnabledStates: boolean[]; 
+    hiddenEnabled: boolean;
     usdPrims: USDPrimType[];
     selectedUSDPrims: Set<USDPrimType>;
     isKitReady: boolean;
@@ -83,7 +85,7 @@ export default class App extends React.Component<AppProps, AppState> {
         [
             {name: "Drill", url:"VR:wt.part.WTPart:7123532"},
             {name: "PCB", url:"VR:wt.part.WTPart:7313998"},
-            {name: "Bike", url:"OR:wt.part.WTPart:7108892"},
+            {name: "Mower", url:"VR:wt.part.WTPart:7376834"},
         ];
 
         // list of selectable lighting
@@ -106,6 +108,7 @@ export default class App extends React.Component<AppProps, AppState> {
             backdropEnabled: true,
             pcbLayerNames: ["PinPads", "Routes", "Paste", "SolderMask"],
             pcbLayerEnabledStates: [true, true, true, true],
+            hiddenEnabled: false,
             usdPrims: [],
             selectedUSDPrims: new Set<USDPrimType>(),
             isKitReady: false,
@@ -242,6 +245,23 @@ export default class App extends React.Component<AppProps, AppState> {
         AppStream.sendMessage(JSON.stringify(message));
     }
 
+        /**
+    * @function _setHiddenEnabled
+    *
+    * Send a request to hide the current selection
+    */
+    private _setHiddenEnabled(): void {
+        console.log(`Sending request to change hidden state: ${this.state.hiddenEnabled}.`);
+        const message: AppStreamMessageType = {
+            event_type: "setHiddenRequest",
+            payload: {
+                paths: this.state.selectedUSDPrims.size > 0 ? Array.from(this.state.selectedUSDPrims).map(prim => prim.path) : ["/World/Reference/_44/_52"],
+                hidden: this.state.hiddenEnabled
+            }
+        };
+        AppStream.sendMessage(JSON.stringify(message));
+    }
+
     /**
     * @function _setPCBLayerEnabled
     *
@@ -292,6 +312,19 @@ export default class App extends React.Component<AppProps, AppState> {
         console.log(`Backdrop toggled: ${value}.`);
         this.setState({ backdropEnabled: value }, () => {
             this._setBackdropEnabled();
+        });
+    }
+
+
+    /**
+    * @function _onHiddenToggle
+    *
+    * React to user selecting lighting in the Lighting selector.
+    */
+    private _onHiddenToggle (value: boolean): void {
+        console.log(`Hidden toggled: ${value}.`);
+        this.setState({ hiddenEnabled: value }, () => {
+            this._setHiddenEnabled();
         });
     }
 
@@ -619,6 +652,11 @@ return (
                 <Backdrop
                     isEnabled={this.state.backdropEnabled}
                     onToggle={(value) => this._onBackdropToggle(value)}
+                    width={sidebarWidth}
+                />
+                <Hidden
+                    isEnabled={this.state.hiddenEnabled}
+                    onToggle={(value) => this._onHiddenToggle(value)}
                     width={sidebarWidth}
                 />
                 <PCBLayers

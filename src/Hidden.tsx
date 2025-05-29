@@ -12,27 +12,27 @@
 
 import React from "react";
 import './App.css';
-import './Backdrop.css'; // Assuming you're using existing styles
+import './Hidden.css'; // Assuming you're using existing styles
 
-interface BackdropProps {
+interface HiddenProps {
     width: number;
     isEnabled: boolean;
     onToggle: (value: boolean) => void;
 }
 
-interface BackdropState {
+interface HiddenState {
     selected: boolean;
 }
 
-export default class Backdrop extends React.Component<BackdropProps, BackdropState> {
-    constructor(props: BackdropProps) {
+export default class Hidden extends React.Component<HiddenProps, HiddenState> {
+    constructor(props: HiddenProps) {
         super(props);
         this.state = {
             selected: props.isEnabled
         };
     }
 
-    componentDidUpdate(prevProps: BackdropProps) {
+    componentDidUpdate(prevProps: HiddenProps) {
         if (prevProps.isEnabled !== this.props.isEnabled) {
             this.setState({ selected: this.props.isEnabled });
         }
@@ -46,12 +46,12 @@ export default class Backdrop extends React.Component<BackdropProps, BackdropSta
 
     render() {
         return (
-            <div className="backdropContainer" style={{ width: this.props.width }}>
-                <div className="backdropHeader">
-                    {'Backdrop'}
+            <div className="hiddenContainer" style={{ width: this.props.width }}>
+                <div className="hiddenHeader">
+                    {'Hidden'}
                 </div>
-                <div className="backdropSelectorContainer">
-                    <label className="backdropOption">
+                <div className="hiddenSelectorContainer">
+                    <label className="hiddenOption">
                         <input
                             type="checkbox"
                             checked={this.state.selected}
