@@ -88,7 +88,7 @@ export default class AppStream extends Component<AppStreamProps, AppStreamState>
                     authenticate: false,
                     maxReconnects: 20,
                     server: "",
-                    signalingServer: 'webrtcproxy.eastus.cloudapp.azure.com',
+                    signalingServer: 'omniversewebrtcdemo.westus.cloudapp.azure.com',
                     signalingPort: 49100,   
                     mediaServer: StreamConfig.local.server,
                     mediaPort: 1024,
