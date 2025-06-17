@@ -85,7 +85,7 @@ export default class App extends React.Component<AppProps, AppState> {
         [
             {name: "Drill", url:"VR:wt.part.WTPart:7123532"},
             {name: "PCB", url:"VR:wt.part.WTPart:7313998"},
-            {name: "Mower", url:"VR:wt.part.WTPart:7376834"},
+            {name: "Lambda", url:"VR:wt.part.WTPart:7376834"},
         ];
 
         // list of selectable lighting
